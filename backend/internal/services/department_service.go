@@ -2,6 +2,7 @@ package services
 
 import (
 	"backend/internal/dto/requests"
+	"backend/internal/dto/response"
 	"backend/internal/models"
 	"backend/internal/repositories"
 	"errors"
@@ -12,7 +13,7 @@ import (
 type DepartmentService interface {
 	GetAll(filter map[string]interface{}, page, limit int) ([]models.Department, int64, error)
 	GetByID(id uuid.UUID) (*models.Department, error)
-	AddNewDepartment(req *requests.CreateNewDepartment) (*models.Department, error)
+	AddNewDepartment(req *requests.CreateNewDepartment) (*response.DepartmentResponse, error)
 	Update(id uuid.UUID, req requests.UpdateDepartment) (*models.Department, error)
 	Delete(id uuid.UUID)
 }
@@ -44,8 +45,8 @@ func (s *departmentService) GetAll(filter map[string]interface{}, page, limit in
 }
 
 func (s *departmentService) GetByID(id uuid.UUID) (*models.Department, error) {
-	if id != uuid.Nil {
-		return nil, errors.New("")
+	if id == uuid.Nil {
+		return nil, errors.New("id is required")
 	}
 
 	department, err := s.repository.GetByID(id.String())
@@ -56,7 +57,7 @@ func (s *departmentService) GetByID(id uuid.UUID) (*models.Department, error) {
 	return department, nil
 }
 
-func (s *departmentService) AddNewDepartment(req *requests.CreateNewDepartment) (*models.Department, error) {
+func (s *departmentService) AddNewDepartment(req *requests.CreateNewDepartment) (*response.DepartmentResponse, error) {
 	// validate request
 	if req.Code == "" {
 		return nil, errors.New("code is required")
@@ -67,22 +68,13 @@ func (s *departmentService) AddNewDepartment(req *requests.CreateNewDepartment) 
 	}
 
 	// check duplicate with code
-	_, err := s.repository.GetByCode(req.Code)
-	if err != nil {
+	if department, err := s.repository.GetByCode(req.Code); err == nil && department != nil {
 		return nil, errors.New("this department already exist")
-	}
-
-	// validate parent department id
-	if req.ParentDepartmentID != nil {
-		_, err := s.repository.GetByID(req.ParentDepartmentID.String())
-		if err != nil {
-			return nil, errors.New("parent department doesn't exist")
-		}
 	}
 
 	// validate head of department id
 	if req.HeadOfDepartmentID != nil {
-		_, err := s.repository.GetByID(req.HeadOfDepartmentID.String())
+		_, err := s.employeeRepo.GetByID(*req.HeadOfDepartmentID)
 		if err != nil {
 			return nil, errors.New("head of department doesn't exist")
 		}
@@ -93,7 +85,7 @@ func (s *departmentService) AddNewDepartment(req *requests.CreateNewDepartment) 
 		Code:               req.Code,
 		Name:               req.Name,
 		ParentDepartmentID: req.ParentDepartmentID,
-		HeadOfDepartmentID: req.ParentDepartmentID,
+		HeadOfDepartmentID: req.HeadOfDepartmentID,
 		BudgetCode:         req.BudgetCode,
 	}
 
@@ -103,11 +95,11 @@ func (s *departmentService) AddNewDepartment(req *requests.CreateNewDepartment) 
 	}
 
 	// return
-	return newDepartment, nil
+	return response.ToDepartmentResponse(newDepartment), nil
 }
 
 func (s *departmentService) Update(id uuid.UUID, req requests.UpdateDepartment) (*models.Department, error) {
-	if id != uuid.Nil {
+	if id == uuid.Nil {
 		return nil, errors.New("id is required")
 	}
 

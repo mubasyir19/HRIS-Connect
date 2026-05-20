@@ -44,6 +44,7 @@ func main() {
 
 	routes.AuthRouter(apiV1)
 	routes.EmployeeRoute(apiV1)
+	routes.DepartmentRouter(apiV1)
 
 	apiV1.Get("/", func(c fiber.Ctx) error {
 		return c.SendString("Hello, World")
