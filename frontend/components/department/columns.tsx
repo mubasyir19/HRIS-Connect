@@ -2,18 +2,22 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
+type HeadOfDepartmentInfo = {
+  id: string;
+  fullname: string;
+};
+
 export type Department = {
   id: string;
   code: string;
   name: string;
-  headOfDepartmentId: string;
-  parentDepartmentId: string;
+  headOfDepartmentId: string | null;
+  headOfDepartment: HeadOfDepartmentInfo | null;
+  parentDepartmentId: string | null;
   budgetCode: string;
-  totalEmployee: string;
-  location: string;
-  status: string;
+  totalEmployee: number;
+  location?: string;
+  status?: string;
 };
 
 export const columnsDepartment: ColumnDef<Department>[] = [
@@ -22,19 +26,31 @@ export const columnsDepartment: ColumnDef<Department>[] = [
     header: "Department Name",
   },
   {
-    accessorKey: "headOfDepartmentId",
+    accessorKey: "headOfDepartment.fullname",
     header: "Head Of Department",
+    cell: ({ row }) => {
+      const headOfDept = row.original.headOfDepartment;
+      return (
+        <div className="font-medium text-gray-700">
+          {headOfDept?.fullname || "-"}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "code",
+    header: "Department Code",
   },
   {
     accessorKey: "totalEmployee",
     header: "Total Employee",
+    cell: ({ row }) => {
+      const total = row.getValue("totalEmployee") as number;
+      return <div className="font-medium text-black">{total}</div>;
+    },
   },
   {
-    accessorKey: "location",
-    header: "Location",
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
+    // accessorKey: "status",
+    header: "....",
   },
 ];

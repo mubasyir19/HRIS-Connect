@@ -34,7 +34,7 @@ func (r *departmentRepository) GetAll(filter map[string]interface{}, page, limit
 		return nil, 0, fmt.Errorf("failed to count departments: %w", count.Error)
 	}
 
-	result := r.db.Where(filter).Offset((page - 1) * limit).Limit(limit).Find(&departments)
+	result := r.db.Where(filter).Offset((page - 1) * limit).Limit(limit).Preload("HeadOfDepartment").Preload("ParentDepartment").Preload("Employees").Find(&departments)
 	if result.Error != nil {
 		return nil, 0, fmt.Errorf("result get departmnets: %w", result.Error)
 	}

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"backend/internal/dto/requests"
+	"backend/internal/dto/response"
 	"backend/internal/services"
 	"strconv"
 
@@ -36,10 +37,16 @@ func (h *departmentHandler) GetListAllDepartment(c fiber.Ctx) error {
 		})
 	}
 
+	// Convert models to response DTOs
+	var departmentResponses []*response.DepartmentResponse
+	for _, dept := range departments {
+		departmentResponses = append(departmentResponses, response.ToDepartmentResponse(&dept))
+	}
+
 	totalPages := (total + int64(limit) - 1) / int64(limit)
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"data": departments,
+		"data": departmentResponses,
 		"meta": fiber.Map{
 			"total":       total,
 			"page":        page,
