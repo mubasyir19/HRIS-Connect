@@ -8,8 +8,8 @@ export type Department = {
   id: string;
   code: string;
   name: string;
-  headOfDepartmentID: string;
-  parentDepartmentID: string;
+  headOfDepartmentId: string;
+  parentDepartmentId: string;
   budgetCode: string;
   totalEmployee: string;
   location: string;
@@ -22,7 +22,7 @@ export const columnsDepartment: ColumnDef<Department>[] = [
     header: "Department Name",
   },
   {
-    accessorKey: "headOfDepartmentID",
+    accessorKey: "headOfDepartmentId",
     header: "Head Of Department",
   },
   {

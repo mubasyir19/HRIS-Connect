@@ -13,6 +13,7 @@ import (
 )
 
 type EmployeeService interface {
+	GetAll(filter map[string]interface{}, page, limit int) ([]models.Employee, int64, error)
 	Create(req requests.CreateEmployeeRequest) (*response.EmployeeResponse, error)                // output return pointer response employee + error
 	GetByID(id uuid.UUID) (*response.EmployeeResponse, error)                                     // output return pointer response employee + error
 	GetByNIK(nik string) (*response.EmployeeResponse, error)                                      // output return pointer response employee + error
@@ -33,6 +34,23 @@ func NewEmployeeService(employeeRepo repositories.EmployeeRepository, userRepo r
 		userRepo:     userRepo,
 		db:           db,
 	}
+}
+
+func (s *employeeService) GetAll(filter map[string]interface{}, page, limit int) ([]models.Employee, int64, error) {
+	// validate parameter
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 10
+	}
+
+	employees, total, err := s.employeeRepo.GetAll(filter, page, limit)
+	if err != nil {
+		return nil, 0, errors.New("failed get list employees")
+	}
+
+	return employees, total, nil
 }
 
 func (s *employeeService) Create(req requests.CreateEmployeeRequest) (*response.EmployeeResponse, error) {

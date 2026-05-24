@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/internal/handlers"
+	"backend/internal/middleware"
 	"backend/internal/repositories"
 	"backend/internal/services"
 	"backend/pkg"
@@ -24,6 +25,7 @@ func EmployeeRoute(router fiber.Router) {
 
 	employeeRoute := router.Group("/employee")
 	{
+		employeeRoute.Get("/all", middleware.AuthMiddleware(pkg.AppConfig.JWTSecret), employeeHandler.GetListEmployees)
 		// employeeRoute.Post("/add", middleware.AuthMiddleware(pkg.AppConfig.JWTSecret), employeeHandler.AddNewEmployee)
 		employeeRoute.Post("/add", employeeHandler.AddNewEmployee)
 	}

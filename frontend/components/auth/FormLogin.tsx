@@ -24,7 +24,6 @@ export default function FormLogin() {
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
-    console.log("form data login = ", formData);
 
     mutate(formData);
   };
